@@ -1,0 +1,33 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - "master"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: установка ключа
+        run: |
+          set -eu
+          mkdir "$HOME/.ssh"
+          echo "${{ secrets.key }}" > "$HOME/.ssh/key"
+          chmod 600 "$HOME/.ssh/key"
+
+      - name: установка зависимостей
+        run: |
+          npm ci --force
+          npm run build
+
+      - name: синхронизация файлов с хостингом
+        run: rsync -e "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress --delete . "${{ secrets.login }}@${{ secrets.host }}:${{ secrets.path_site }}" --exclude node_modules/
