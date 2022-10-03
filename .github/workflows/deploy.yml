@@ -30,4 +30,4 @@ jobs:
           npm run build
 
       - name: синхронизация файлов с хостингом
-        run: rsync -e "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress --delete . "${{ secrets.login }}@${{ secrets.host }}:${{ secrets.path_site }}" --exclude node_modules/
+        run: rsync -e "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress --delete dist/* "${{ secrets.login }}@${{ secrets.host }}:${{ secrets.path_site }}" --exclude node_modules/
